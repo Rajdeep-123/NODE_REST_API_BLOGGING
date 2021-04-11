@@ -105,7 +105,6 @@ exports.postPhoto =(req,res,next)=>{
 // to get all posts
 exports.getPosts = (req,res)=>{
     const currentPage = req.query.page || 1;
-    // return 3 posts per page
     const perPage = 9;
     let totalItems;
 
