@@ -11,4 +11,4 @@ PORT=8080 or desired port
 
 JWT_SECRET=Any random long string
 
-CLIENT_URL=client url -> (http://localhost:5000)
+CLIENT_URL=client/React frontend url  -> (http://localhost:5000)
