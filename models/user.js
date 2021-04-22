@@ -41,7 +41,16 @@ const userSchema = new mongoose.Schema({
     role:{
         type:String,
         default:"subscriber"
-    }
+    },
+    clientRequestsToAdmin:[
+        {
+            name:String,
+            email:String,
+            password:String,
+            time:{type:Date,default:Date.now}
+        }
+    ]
+
 });
 
 // virtual schema field
