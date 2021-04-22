@@ -41,7 +41,7 @@ exports.allUsers=(req,res)=>{
         else{
             res.json(users)
         }
-    }).select("name email created updated _id role")
+    }).select("name email created updated _id role about")
 }
 
 exports.getUser = (req,res)=>{
@@ -240,4 +240,106 @@ User.find({_id:{$nin:following}},(err,foundUsers)=>{ // check for other users, a
         res.json(foundUsers)
     }
 }).select("name")
+}
+
+//Admin
+
+exports.handleClients = (req, res) => {
+  User.findOne({ role: "admin" }).exec((err, admin) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(admin);
+    }
+  });
+};
+
+exports.allowUser = (req, res, next) => {
+  const name = req.body.name;
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const user = new User({ name, email, password });
+  user.save();
+  console.log("user created!");
+  next();
+  //res.json({ message: "User has been succesfully registerd! Please login" });
+};
+
+exports.informClient = (req, res, next) => {
+  const emailData = {
+    from: "youremail@gmail.com",
+    to: req.body.email,
+    subject: "Account updates",
+    text: ``,
+    html: `
+        <div
+    style="background-color: aquamarine; height:350px; padding: 20px; border: 4px solid grey;">
+<h3>Update from blogPost</h3>
+<h5>Congratulations ${req.body.name}! your account has been successfully created</h5>
+<h5>Now you can <a href=${process.env.CLIENT_URL}/signin>login here</a> and strat posting today!</h5>
+<p>Thank you for joining with us</p>
+</div>
+
+        `,
+  };
+
+  sendEmail(emailData);
+  next();
+};
+
+exports.removeFromAdminList = (req, res) => {
+  const userName = req.body.name;
+  User.updateOne(
+    { "clientRequestsToAdmin.name": userName },
+    {
+      $pull: { clientRequestsToAdmin: { name: userName } },
+    },
+    { new: true },
+    (err, user) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.json({ message: "User has been removed!" });
+      }
+    }
+  );
+};
+
+exports.removeClient = (req, res) => {
+  const userId = req.body.id;
+  User.updateOne(
+    { "clientRequestsToAdmin._id": userId },
+    {
+      $pull: { clientRequestsToAdmin: { _id: userId } },
+    },
+    { new: true },
+    (err, user) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.json({ message: "User has been removed!" });
+      }
+    }
+  );
+};
+
+
+// user timeline
+exports. postsForTimeline = (req, res) => {
+  let following = req.profile.following
+  following.push(req.profile._id)
+  Post.find({postedBy: { $in : req.profile.following } })
+  .populate('comments', 'text created')
+  .populate('comments.postedBy', '_id name')
+  .populate('postedBy', '_id name')
+  .sort('-created')
+  .exec((err, posts) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler.getErrorMessage(err)
+      })
+    }
+    res.json(posts)
+  })
 }
