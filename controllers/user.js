@@ -5,6 +5,7 @@ const formidable = require('formidable'); // to handle photos or files
 const fs = require("fs");
 const { profile } = require("console");
 const { result } = require("lodash");
+const { sendEmail } = require("../helpers/index");
 
 exports.userById = (req,res,next,id) =>{
     User.findById(id)
