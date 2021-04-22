@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {allUsers,userById,getUser,updateUser,deleteUser,hasAuthorization, userPhoto, addFollowing, addFollower, removeFollowing, removeFollower,findPeople,deletePosts, deleteComments, deleteFollowings, deleteLikes} =require("../controllers/user");
+const {allUsers,userById,getUser,updateUser,deleteUser,hasAuthorization, userPhoto, addFollowing, addFollower, removeFollowing, removeFollower,findPeople,deletePosts, deleteComments, deleteFollowings, deleteLikes, handleClients, allowUser, informClient ,removeFromAdminList,removeClient, postsForTimeline} =require("../controllers/user");
 const {requireSignIn} = require("../controllers/auth");
 
 
@@ -15,6 +15,11 @@ router.delete("/users/:userId",requireSignIn,hasAuthorization,deleteUser,deleteP
 router.get("/user/photo/:userId",userPhoto)
 // user follow suggestion
 router.get("/user/findpeople/:userId",requireSignIn,findPeople)
+
+//admin
+router.get("/admin",requireSignIn,handleClients)
+router.post("/admin/allowuser", requireSignIn, allowUser,informClient, removeFromAdminList);
+router.post("/admin/declineuser",requireSignIn,removeClient)
 
 // Any route containing :userId:, will first execute here, in params;
 router.param("userId", userById);
